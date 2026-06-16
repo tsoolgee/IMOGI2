@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         בני ברק - אימוג'י בהקלדה
 // @namespace    https://github.com/tsoolgee/IMOGI2
-// @version      0.0.1
+// @version      0.0.2
 // @description  מחליף מילים לאימוג'ים בזמן הקלדה בכל תיבות הטקסט באתר
 // @author       You
 // @match        https://bnebrak.com/*
