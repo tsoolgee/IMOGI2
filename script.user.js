@@ -1,106 +1,155 @@
 // ==UserScript==
-// @name         בני ברק - אימוג'י בהקלדה
+// @name          בני ברק & מתמחים - אימוג'י בהקלדה
 // @namespace    https://github.com/tsoolgee/IMOGI2
-// @version      0.0.3
-// @description  מחליף מילים לאימוג'ים בזמן הקלדה בכל תיבות הטקסט באתר (רק עם נקודתיים בתחילה)
+// @version      0.1.0
+// @description  מחליף מילים לאימוג'ים בזמן הקלדה (עם נקודתיים בתחילה) - תומך בכל סוגי תיבות הטקסט
 // @author       You
 // @match        https://bnebrak.com/*
 // @match        http://mitmachim.top/*
 // @match        https://mitmachim.top/*
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/tsoolgee/IMOGI2/main/IMOGI%20BNAI%20BRAK.JS
-// @downloadURL  https://raw.githubusercontent.com/tsoolgee/IMOGI2/main/IMOGI%20BNAI%20BRAK.JS
 // ==/UserScript==
 
 (function () {
     'use strict';
 
+    // מערך מסודר מהארוך לקצר למניעת באגים בהחלפה
     const map = [
-        ['חחחח',     '😂'],
-        ['חחח',      '😄'],
-        ['אונק',       '😛'],
-        ['נחש',       '🐍'],        
-        ['חח',       '😊'],
-        ['קריצה',    '😉'],
-        ['עצוב',     '😞'],
-        ['שמח',      '🙂'],
-        ['מגניב',    '😎'],
-        ['גרר',      '😡'],
         ['אני כועס', '😠'],
-        ['חושב',     '🤔'],
-        ['מתלבט',    '🤔'],
-        ['שוקל',     '⚖️'],
-        ['אני ישן',  '😴'],
+        ['מחיאות כפיים', '👏'],
+        ['מזל טוב', '🎉'],
         ['אני עייף', '🥱'],
-        ['ששש',      '🤫'],
-        ['תודה',     '👍'],
-        ['כוכב',     '⭐'],
-        ['לב',       '❤️'],
-        ['רעיון',    '💡'],
-        ['אש',       '🔥'],
-        ['חריף',     '🌶️'],
+        ['אני ישן', '😴'],
+        ['שים לב', '📢'],
+        ['דיסלייק', '👎'],
+        ['קריצה', '😉'],
+        ['מתלבט', '🤔'],
+        ['מגניב', '😎'],
+        ['אונק', '😛'],
+        ['עודכן', '🔄'],
+        ['אזהרה', '⚠️'],
+        ['פתרון', '✅'],
+        ['מחשב', '💻'],
+        ['הודעה', '✉️'],
+        ['חיפוש', '🔍'],
+        ['שעון', '🕒'],
+        ['חחחח', '😂'],
+        ['חחח', '😄'],
+        ['נחש', '🐍'],
+        ['חח', '😊'],
+        ['עצוב', '😞'],
+        ['שמח', '🙂'],
+        ['גרר', '😡'],
+        ['חושב', '🤔'],
+        ['שוקל', '⚖️'],
+        ['חדש', '🆕'],
+        ['לייק', '👍'],
+        ['דחוף', '🚨'],
+        ['שאלה', '❓'],
+        ['עסוק', '💼'],
+        ['ספר', '📖'],
+        ['עט', '✍️'],
+        ['ששש', '🤫'],
+        ['תודה', '👍'],
+        ['כוכב', '⭐'],
+        ['לב', '❤️'],
+        ['רעיון', '💡'],
+        ['אש', '🔥'],
+        ['חריף', '🌶️']
     ];
 
-    let lastKey = '';
+    // פונקציית עזר להחלפה בתיבות טקסט רגילות (input / textarea)
+    function handleStandardInput(el, key) {
+        if (key !== ' ' && key !== 'Enter') return;
 
-    function replaceInTextarea(textarea) {
-        if (lastKey !== ' ' && lastKey !== 'Enter') return;
-
-        const val = textarea.value;
-        const cursor = textarea.selectionStart;
+        const val = el.value;
+        const cursor = el.selectionStart;
         const textBefore = val.slice(0, cursor);
+        const triggerChar = textBefore.slice(-1);
+
+        if (triggerChar !== ' ' && triggerChar !== '\n') return;
 
         for (const [from, to] of map) {
-            const triggerChar = textBefore.slice(-1);
-            
-            if (triggerChar !== ' ' && triggerChar !== '\n') continue;
-
-            // הוספת הנקודתיים כתנאי הכרחי בתחילת המילה
             const target = ':' + from + triggerChar;
-            
             if (!textBefore.endsWith(target)) continue;
 
-            // חישוב תחילת המילה כולל הנקודתיים
             const wordStart = cursor - target.length;
-
-            // מוודאים שאין אות צמודה לפני הנקודתיים (למשל text:חח לא יוחלף)
             const charBefore = val[wordStart - 1];
             if (charBefore !== undefined && charBefore !== ' ' && charBefore !== '\n') continue;
 
-            // מחליפים את הנקודתיים והמילה באימוג'י, ושומרים על הרווח/אנטר בסוף
             const newVal = val.slice(0, wordStart) + to + triggerChar + val.slice(cursor);
-            textarea.value = newVal;
+            el.value = newVal;
 
             const newCursor = wordStart + to.length + triggerChar.length;
-            textarea.setSelectionRange(newCursor, newCursor);
-            
-            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            el.setSelectionRange(newCursor, newCursor);
+            el.dispatchEvent(new Event('input', { bubbles: true }));
             return;
         }
     }
 
-    function attachToTextarea(textarea) {
-        if (textarea.dataset.emojiAttached) return;
-        textarea.dataset.emojiAttached = 'true';
+    // פונקציית עזר להחלפה בעורכי טקסט מבוססי HTML (contenteditable)
+    function handleEditableInput(el, key) {
+        if (key !== ' ' && key !== 'Enter') return;
 
-        textarea.addEventListener('keydown', function (e) {
-            lastKey = e.key;
-        }, true);
+        const selection = window.getSelection();
+        if (!selection.rangeCount) return;
 
-        textarea.addEventListener('input', function () {
-            replaceInTextarea(this);
-        });
+        const range = selection.getRangeAt(0);
+        const textNode = range.startContainer;
+
+        if (textNode.nodeType !== Node.TEXT_NODE) return;
+
+        const text = textNode.nodeValue;
+        const cursor = range.startOffset;
+        const textBefore = text.slice(0, cursor);
+        const triggerChar = textBefore.slice(-1);
+
+        if (triggerChar !== ' ' && triggerChar !== '\n' && triggerChar !== '\u00A0') return; // \u00A0 הוא רווח HTML נפוץ
+
+        for (const [from, to] of map) {
+            const target = ':' + from + triggerChar;
+            if (!textBefore.endsWith(target)) continue;
+
+            const wordStart = cursor - target.length;
+            const charBefore = text[wordStart - 1];
+            if (charBefore !== undefined && charBefore !== ' ' && charBefore !== '\n' && charBefore !== '\u00A0') continue;
+
+            // החלפת הטקסט בתוך ה-Node הקיים כדי לשמור על מיקום הסמן באופן טבעי
+            const newVal = text.slice(0, wordStart) + to + triggerChar + text.slice(cursor);
+            textNode.nodeValue = newVal;
+
+            // עדכון מיקום הסמן של המשתמש בדיוק אחרי האימוג'י והרווח
+            const newRange = document.createRange();
+            const newOffset = wordStart + to.length + triggerChar.length;
+            newRange.setStart(textNode, newOffset);
+            newRange.setEnd(textNode, newOffset);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            return;
+        }
     }
 
-    function findAndAttach() {
-        document.querySelectorAll('textarea').forEach(attachToTextarea);
-    }
+    // האזנה גלובלית לאירועי הקלדה - חוסך את הצורך בלולאות ו-MutationObserver מורכבים
+    let lastKey = '';
+    
+    document.addEventListener('keydown', function (e) {
+        lastKey = e.key;
+    }, true);
 
-    findAndAttach();
+    document.addEventListener('input', function (e) {
+        const target = e.target;
+        if (!target) return;
 
-    new MutationObserver(findAndAttach).observe(document.body, {
-        childList: true,
-        subtree: true
-    });
+        // בדיקה האם מדובר בתיבת טקסט רגילה
+        if (target.tagName === 'TEXTAREA' || target.tagName === 'INPUT') {
+            handleStandardInput(target, lastKey);
+        } 
+        // בדיקה האם מדובר באלמנט עריכה עשיר (contenteditable)
+        else if (target.isContentEditable || target.closest('[contenteditable="true"]')) {
+            handleEditableInput(target, lastKey);
+        }
+    }, true);
 
 })();
