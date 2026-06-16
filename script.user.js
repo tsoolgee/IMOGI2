@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         בני ברק - אימוג'י בהקלדה
 // @namespace    https://github.com/tsoolgee/IMOGI2
-// @version      0.0.2
-// @description  מחליף מילים לאימוג'ים בזמן הקלדה בכל תיבות הטקסט באתר
+// @version      0.0.3
+// @description  מחליף מילים לאימוג'ים בזמן הקלדה בכל תיבות הטקסט באתר (רק עם נקודתיים בתחילה)
 // @author       You
 // @match        https://bnebrak.com/*
 // @match        http://mitmachim.top/*
@@ -53,16 +53,19 @@
             
             if (triggerChar !== ' ' && triggerChar !== '\n') continue;
 
-            const target = from + triggerChar;
+            // הוספת הנקודתיים כתנאי הכרחי בתחילת המילה
+            const target = ':' + from + triggerChar;
             
             if (!textBefore.endsWith(target)) continue;
 
-            const matchEnd = cursor - 1;
-            const wordStart = matchEnd - from.length;
+            // חישוב תחילת המילה כולל הנקודתיים
+            const wordStart = cursor - target.length;
 
+            // מוודאים שאין אות צמודה לפני הנקודתיים (למשל text:חח לא יוחלף)
             const charBefore = val[wordStart - 1];
             if (charBefore !== undefined && charBefore !== ' ' && charBefore !== '\n') continue;
 
+            // מחליפים את הנקודתיים והמילה באימוג'י, ושומרים על הרווח/אנטר בסוף
             const newVal = val.slice(0, wordStart) + to + triggerChar + val.slice(cursor);
             textarea.value = newVal;
 
