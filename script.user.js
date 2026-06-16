@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name          בני ברק & מתמחים - אימוג'י בהקלדה
 // @namespace    https://github.com/tsoolgee/IMOGI2
-// @version      0.1.0
+// @version      0.1.1
 // @description  מחליף מילים לאימוג'ים בזמן הקלדה (עם נקודתיים בתחילה) - תומך בכל סוגי תיבות הטקסט
 // @author       You
 // @match        https://bnebrak.com/*
