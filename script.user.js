@@ -1,15 +1,15 @@
 // ==UserScript==
 // @name         בני ברק - אימוג'י בהקלדה
 // @namespace    https://github.com/tsoolgee/IMOGI2
-// @version      0.0.0
+// @version      0.0.1
 // @description  מחליף מילים לאימוג'ים בזמן הקלדה בכל תיבות הטקסט באתר
 // @author       You
 // @match        https://bnebrak.com/*
 // @match        http://mitmachim.top/*
 // @match        https://mitmachim.top/*
 // @grant        none
-// @updateURL    https://raw.githubusercontent.com/tsoolgee/IMOGI2/main/script.user.js
-// @downloadURL  https://raw.githubusercontent.com/tsoolgee/IMOGI2/main/script.user.js
+// @updateURL    https://raw.githubusercontent.com/tsoolgee/IMOGI2/main/IMOGI%20BNAI%20BRAK.JS
+// @downloadURL  https://raw.githubusercontent.com/tsoolgee/IMOGI2/main/IMOGI%20BNAI%20BRAK.JS
 // ==/UserScript==
 
 (function () {
